@@ -540,6 +540,10 @@ MonoBehaviour:
   matchMaker: {fileID: 0}
   console: {fileID: 109767034}
   camStreamTv: {fileID: 1031735161}
+  hpSlider: {fileID: 454070457}
+  mpSlider: {fileID: 2092990119}
+  spells:
+  - Pls wait for server data
 --- !u!114 &283605151
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -803,6 +807,12 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 224401158836023578, guid: 29cdb3b211810564aa2f68c1d861825c,
     type: 2}
   m_PrefabInternal: {fileID: 851118581}
+--- !u!114 &454070457 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114354527647884432, guid: 29cdb3b211810564aa2f68c1d861825c,
+    type: 2}
+  m_PrefabInternal: {fileID: 851118581}
+  m_Script: {fileID: -113659843, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 --- !u!224 &548547636 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 224569078137146354, guid: c2dc640972af72c4692ed8fd31b6df75,
@@ -1189,6 +1199,21 @@ Prefab:
         type: 2}
       propertyPath: m_Color.b
       value: 0.88235295
+      objectReference: {fileID: 0}
+    - target: {fileID: 114354527647884432, guid: 29cdb3b211810564aa2f68c1d861825c,
+        type: 2}
+      propertyPath: m_MaxValue
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114354527647884432, guid: 29cdb3b211810564aa2f68c1d861825c,
+        type: 2}
+      propertyPath: m_Value
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114354527647884432, guid: 29cdb3b211810564aa2f68c1d861825c,
+        type: 2}
+      propertyPath: m_WholeNumbers
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 29cdb3b211810564aa2f68c1d861825c, type: 2}
@@ -1778,6 +1803,12 @@ RectTransform:
   m_CorrespondingSourceObject: {fileID: 224401158836023578, guid: 29cdb3b211810564aa2f68c1d861825c,
     type: 2}
   m_PrefabInternal: {fileID: 890119626}
+--- !u!114 &2092990119 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 114354527647884432, guid: 29cdb3b211810564aa2f68c1d861825c,
+    type: 2}
+  m_PrefabInternal: {fileID: 890119626}
+  m_Script: {fileID: -113659843, guid: f70555f144d8491a825f0804e09c671c, type: 3}
 --- !u!114 &2135538122 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 114054556308267514, guid: cebe955f39a61384f902a6da7c0737d1,
