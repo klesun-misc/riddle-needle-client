@@ -16,7 +16,7 @@ namespace Network {
         public InputField console;
         public RawImage tv;
 
-        private Texture2D tvTex; 
+        private Texture2D tvTex;
 
         float lastSyncAt = 0;
 
@@ -85,7 +85,7 @@ namespace Network {
                     msgs.Add(new Msg{
                         type = Msg.EType.KeyDown,
                         keyCode = e.keyCode,
-                    });                    
+                    });
                 }
             } else if (e.type == EventType.KeyUp) {
                 msgs.Add(new Msg{
@@ -112,7 +112,7 @@ namespace Network {
         }
 
         void OnGUI()
-        {            
+        {
             var e = Event.current;
             var msgs = makeMessagesFromGuiEvent(e);
             msgs.ForEach((msg) => {
@@ -128,7 +128,7 @@ namespace Network {
         {
             var msgs = new List<Msg>();
             var mouseDelta = new V2{
-                x = Input.GetAxis("Mouse X"), 
+                x = Input.GetAxis("Mouse X"),
                 y = Input.GetAxis("Mouse Y")
             };
             if (mouseDelta.toStd().magnitude > 0.000001f) {
