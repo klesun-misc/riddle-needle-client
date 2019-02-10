@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Gui;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.Networking.NetworkSystem;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Network {
@@ -14,13 +16,9 @@ namespace Network {
     public class SplitNetworkManagerClient : NetworkManager {
 
         public InputField console;
-        public RawImage tv;
+        public CamStreamTv camStreamTv;
 
-        private Texture2D tvTex;
-
-        float lastSyncAt = 0;
-
-        private void Log(String msg)
+        public void Log(String msg)
         {
             Debug.Log(msg);
             if (console != null) {
@@ -42,114 +40,38 @@ namespace Network {
 
         private List<NetworkClient> serverConnections = new List<NetworkClient>();
 
-        private void Start()
-        {
-            tvTex = new Texture2D(0, 0);
-        }
-
         public override void OnClientConnect(NetworkConnection conn)
         {
             var client = new NetworkClient(conn);
             base.OnClientConnect(conn);
             var config = new ConnectionConfig();
             client.Configure(config, 5);
+            client.RegisterHandler(MsgType.Highest + 1, msg => {
+                var str = msg.reader.ReadString();
+                try {
+                    var msgData = JsonConvert.DeserializeObject<Msg> (str);
+                    if (msgData.type == Msg.EType.Error) {
+                        Log("Server responded with error: " + msgData.strValue);
+                    } else {
+                        Log("unexpected event type came from server " + msgData.type + " " + str);
+                    }
+                } catch (Exception exc) {
+                    Debug.Log("Could not parse JSON message - " + exc.Message + " - " + str);
+                }
+            });
             client.RegisterHandler(MsgType.Highest + 2, msg => {
                 var bytes = msg.reader.ReadBytesAndSize();
-                tvTex.LoadImage(bytes);
-                tv.texture = tvTex;
+                camStreamTv.SetFrameImgBytes(bytes);
             });
             serverConnections.Add(client);
         }
 
-        private KeyCode getMouseEventKey(Event e)
+        public void SendMsg(Msg msg)
         {
-            var keyCode = KeyCode.None;
-            if (e.button == 0) {
-                keyCode = KeyCode.Mouse0;
-            } else if (e.button == 1) {
-                keyCode = KeyCode.Mouse1;
-            } else if (e.button == 2) {
-                keyCode = KeyCode.Mouse2;
-            } else {
-                Log("unsupported mouse button - " + e.button);
-            }
-            return keyCode;
-        }
-
-        private List<Msg> makeMessagesFromGuiEvent(Event e)
-        {
-            var msgs = new List<Msg>();
-            if (e.type == EventType.KeyDown) {
-                // GetKeyDown - to filter OS key auto-repeat
-                if (Input.GetKeyDown(e.keyCode)) {
-                    msgs.Add(new Msg{
-                        type = Msg.EType.KeyDown,
-                        keyCode = e.keyCode,
-                    });
-                }
-            } else if (e.type == EventType.KeyUp) {
-                msgs.Add(new Msg{
-                    type = Msg.EType.KeyUp,
-                    keyCode = e.keyCode,
-                });
-            } else if (e.type == EventType.MouseUp) {
-                msgs.Add(new Msg{
-                    type = Msg.EType.KeyUp,
-                    keyCode = getMouseEventKey(e),
-                });
-            } else if (e.type == EventType.MouseDown) {
-                msgs.Add(new Msg{
-                    type = Msg.EType.KeyDown,
-                    keyCode = getMouseEventKey(e),
-                });
-            } else if (e.type == EventType.Repaint || e.type == EventType.Layout) {
-                // ignored if mouse position did not change
-            } else {
-                // fires a additional event on keydown
-                Log("unhandled event - " + e.type + " " + e);
-            }
-            return msgs;
-        }
-
-        void OnGUI()
-        {
-            var e = Event.current;
-            var msgs = makeMessagesFromGuiEvent(e);
-            msgs.ForEach((msg) => {
-                serverConnections.ForEach(serv => {
-                    Cursor.lockState = CursorLockMode.Locked; // lock on any input when we are connected to any server
-                    var dataStr = JsonConvert.SerializeObject(msg);
-                    serv.SendUnreliable(MsgType.Highest + 1, new StringMessage(dataStr));
-                });
-            });
-        }
-
-        void Update ()
-        {
-            var msgs = new List<Msg>();
-            var mouseDelta = new V2{
-                x = Input.GetAxis("Mouse X"),
-                y = Input.GetAxis("Mouse Y")
-            };
-            if (mouseDelta.toStd().magnitude > 0.000001f) {
-                msgs.Add(new Msg{
-                    type = Msg.EType.MouseMove,
-                    mouseDelta = mouseDelta,
-                });
-            }
-            if (Time.fixedTime - lastSyncAt > 2.5f) {
-                lastSyncAt = Time.fixedTime;
-                msgs.Add(new Msg{
-                    type = Msg.EType.Sync,
-                });
-            }
-            msgs.ForEach((msg) => {
-                serverConnections.ForEach(serv => {
-                    var dataStr = JsonConvert.SerializeObject(msg);
-                    serv.SendUnreliable(MsgType.Highest + 1, new StringMessage(dataStr));
-                });
+            serverConnections.ForEach(serv => {
+                var dataStr = JsonConvert.SerializeObject(msg);
+                serv.SendUnreliable(MsgType.Highest + 1, new StringMessage(dataStr));
             });
         }
     }
-
 }
