@@ -17,6 +17,10 @@ namespace Network {
 
         public InputField console;
         public CamStreamTv camStreamTv;
+        public Slider hpSlider;
+        public Slider mpSlider;
+
+        public string[] spells = {"Pls wait for server data"};
 
         public void Log(String msg)
         {
@@ -48,15 +52,23 @@ namespace Network {
             client.Configure(config, 5);
             client.RegisterHandler(MsgType.Highest + 1, msg => {
                 var str = msg.reader.ReadString();
+                Msg msgData;
                 try {
-                    var msgData = JsonConvert.DeserializeObject<Msg> (str);
-                    if (msgData.type == Msg.EType.Error) {
-                        Log("Server responded with error: " + msgData.strValue);
-                    } else {
-                        Log("unexpected event type came from server " + msgData.type + " " + str);
-                    }
+                    msgData = JsonConvert.DeserializeObject<Msg> (str);
                 } catch (Exception exc) {
                     Debug.Log("Could not parse JSON message - " + exc.Message + " - " + str);
+                    return;
+                }
+                if (msgData.type == Msg.EType.Error) {
+                    Log("Server responded with error: " + msgData.strValue);
+                } else if (msgData.type == Msg.EType.State) {
+                    hpSlider.maxValue = msgData.state.hpMax;
+                    hpSlider.value = msgData.state.hp;
+                    mpSlider.maxValue = 1.0f;
+                    mpSlider.value = msgData.state.mpFactor;
+                    spells = msgData.state.spells;
+                } else {
+                    Log("unexpected event type came from server " + msgData.type + " " + str);
                 }
             });
             client.RegisterHandler(MsgType.Highest + 2, msg => {

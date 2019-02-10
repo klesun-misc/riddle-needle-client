@@ -149,7 +149,9 @@ namespace Gui
                     type = Msg.EType.KeyDown,
                     keyCode = getMouseEventKey(e),
                 });
-            } else if (e.type == EventType.Repaint || e.type == EventType.Layout) {
+            } else if (e.type == EventType.Repaint || e.type == EventType.Layout
+                    || e.type == EventType.MouseDrag
+            ) {
                 // ignored if mouse position did not change
             } else {
                 Log("unhandled event - " + e.type + " " + e);
